@@ -7,14 +7,22 @@ import (
 	"github.com/Carlosaac23/go-rest-api/db"
 	"github.com/Carlosaac23/go-rest-api/helpers"
 	"github.com/Carlosaac23/go-rest-api/models"
+	"github.com/google/uuid"
 )
 
 func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	json.NewDecoder(r.Body).Decode(&user)
 
-	hashedPassword, error := helpers.HashPassword(user.Password)
-	if error != nil {
+	id, idErr := uuid.NewV7()
+	if idErr != nil {
+		w.Write([]byte(idErr.Error()))
+	}
+
+	user.ID = id.String()
+
+	hashedPassword, hashErr := helpers.HashPassword(user.Password)
+	if hashErr != nil {
 		http.Error(w, "Error hashing password", http.StatusInternalServerError)
 		return
 	}
@@ -22,10 +30,10 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	user.Password = hashedPassword
 
 	createdUser := db.DB.Create(&user)
-	err := createdUser.Error
-	if err != nil {
+	createErr := createdUser.Error
+	if createErr != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		w.Write([]byte(createErr.Error()))
 	}
 
 	json.NewEncoder(w).Encode(&user)
