@@ -8,9 +8,15 @@ import (
 	"github.com/Carlosaac23/go-rest-api/models"
 	"github.com/Carlosaac23/go-rest-api/routes"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	error := godotenv.Load()
+	if error != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	db.DBConnection()
 
 	db.DB.AutoMigrate(models.Task{})
