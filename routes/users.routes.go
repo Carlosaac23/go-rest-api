@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Carlosaac23/go-rest-api/db"
+	"github.com/Carlosaac23/go-rest-api/helpers"
 	"github.com/Carlosaac23/go-rest-api/models"
 )
 
@@ -12,11 +13,19 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	json.NewDecoder(r.Body).Decode(&user)
 
-	createdUser := db.DB.Create(&user)
-	error := createdUser.Error
+	hashedPassword, error := helpers.HashPassword(user.Password)
 	if error != nil {
+		http.Error(w, "Error hashing password", http.StatusInternalServerError)
+		return
+	}
+
+	user.Password = hashedPassword
+
+	createdUser := db.DB.Create(&user)
+	err := createdUser.Error
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(error.Error()))
+		w.Write([]byte(err.Error()))
 	}
 
 	json.NewEncoder(w).Encode(&user)
