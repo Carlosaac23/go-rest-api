@@ -25,10 +25,18 @@ func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", routes.HomeHandler)
+
+	// User routes
 	r.HandleFunc("/users", routes.CreateUserHandler).Methods("POST")
 	r.HandleFunc("/users", routes.GetUsersHandler).Methods("GET")
 	r.HandleFunc("/users/{id}", routes.GetUserHandler).Methods("GET")
 	r.HandleFunc("/users/{id}", routes.DeleteUserHandler).Methods("DELETE")
+
+	// Task routes
+	r.HandleFunc("/tasks", routes.CreateTaskHandler).Methods("POST")
+	r.HandleFunc("/tasks", routes.GetTasksHandler).Methods("GET")
+	r.HandleFunc("/tasks/{id}", routes.GetTaskHandler).Methods("GET")
+	r.HandleFunc("/tasks/{id}", routes.DeleteTaskHandler).Methods("DELETE")
 
 	log.Print("Server starting at http://localhost:8080")
 	http.ListenAndServe(":8080", r)
